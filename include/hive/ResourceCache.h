@@ -32,8 +32,8 @@ protected:
   //    std::find(m_index.begin(), m_index.end(), name);
   //  }
 
-  nu::DynamicArray<IndexEntry> m_index;
-  nu::GrowingArray<nu::ScopedRefPtr<ResourceType>> m_cache;
+  // nu::DynamicArray<IndexEntry> m_index;
+  // nu::GrowingArray<ResourceType>> m_cache;
 
 private:
   DELETE_COPY_AND_MOVE(ResourceCache);

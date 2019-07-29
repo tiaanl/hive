@@ -2,11 +2,11 @@
 #define HIVE_TEXTURE_CACHE_H_
 
 #include "hive/ResourceCache.h"
-#include "hive/TextureResource.h"
+#include "hive/resources/Texture.h"
 
 namespace hi {
 
-class TextureCache : ResourceCache<TextureResource> {
+class TextureCache : ResourceCache<Texture> {
 public:
   TextureCache();
 

@@ -7,10 +7,17 @@
 
 namespace hi {
 
-class TextureResource : nu::RefCounted<TextureResource> {
+class Texture : public nu::RefCounted<Texture> {
 public:
-  TextureResource(ca::TextureId textureId, const ca::Size& size)
-    : m_textureId{textureId}, m_size{size} {}
+  Texture(ca::TextureId textureId, const ca::Size& size) : m_textureId{textureId}, m_size{size} {}
+
+  ca::TextureId getTextureId() const {
+    return m_textureId;
+  }
+
+  const ca::Size& getSize() const {
+    return m_size;
+  }
 
 private:
   ca::TextureId m_textureId;

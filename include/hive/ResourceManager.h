@@ -2,30 +2,36 @@
 #define HIVE_RESOURCE_MANAGER_H_
 
 #include "canvas/Renderer/Renderer.h"
-#include "canvas/Utils/Image.h"
-#include "hive/ResourceCache.h"
-#include "hive/TextureResource.h"
-#include "nucleus/Containers/GrowingArray.h"
+#include "hive/Resource.h"
+#include "hive/Resources/File.h"
+#include "hive/Resources/Image.h"
+#include "hive/Resources/Texture.h"
 #include "nucleus/FilePath.h"
-#include "nucleus/Macros.h"
-#include "nucleus/RefCounted.h"
 
 namespace hi {
 
 class ResourceManager {
 public:
-  explicit ResourceManager(ca::Renderer* renderer);
-  ResourceManager(ca::Renderer* renderer, const nu::FilePath& rootPath);
+  ResourceManager();
+  explicit ResourceManager(const nu::FilePath& rootPath);
 
-  ca::Image* getImage(const nu::StringView& path);
+  void setRenderer(ca::Renderer* renderer) {
+    m_renderer = renderer;
+  }
+
+  Resource<File> getFile(const nu::StringView& name);
+  Resource<Image> getImage(const nu::StringView& name);
+  Resource<Texture> getTexture(const nu::StringView& name);
 
 private:
   DELETE_COPY_AND_MOVE(ResourceManager);
 
-  ca::Renderer* m_renderer;
+  // The root path used by the resource manager.
   nu::FilePath m_rootPath;
 
-  ResourceCache<TextureResource> m_textures;
+  // Points to a backing renderer.  If it is nullptr, then we don't allow loading of renderer
+  // resources.
+  ca::Renderer* m_renderer = nullptr;
 };
 
 }  // namespace hi
