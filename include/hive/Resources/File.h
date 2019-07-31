@@ -1,6 +1,7 @@
 #ifndef HIVE_FILE_H_
 #define HIVE_FILE_H_
 
+#include "hive/ResourceProcessor.h"
 #include "nucleus/FilePath.h"
 #include "nucleus/RefCounted.h"
 #include "nucleus/Streams/FileInputStream.h"
@@ -40,6 +41,35 @@ private:
   DELETE_COPY_AND_MOVE(PhysicalFile);
 
   nu::FilePath m_path;
+};
+
+class PhysicalFileResourceTypeManager : public ResourceProcessor<File> {
+public:
+  explicit PhysicalFileResourceTypeManager(
+      const nu::FilePath& rootPath = nu::getCurrentWorkingDirectory())
+    : ResourceProcessor{} {}
+
+  ~PhysicalFileResourceTypeManager() override = default;
+
+  Resource<File> load(hi::ResourceManager* resourceManager, nu::InputStream* inputStream) override {
+    return Resource<File>(nullptr);
+  }
+
+  //  Resource<File> load(hi::ResourceManager* resourceManager, const nu::StringView& name) override
+  //  {
+  //    auto absolutePath = buildAbsolutePath(name);
+  //    LOG(Info) << "Loading physical file: " << name << " (" << absolutePath << ")";
+  //
+  //    if (!nu::exists(absolutePath)) {
+  //      LOG(Warning) << "File not found. (" << absolutePath << ")";
+  //      return Resource<File>{resourceManager};
+  //    }
+  //
+  //    return Resource<File>{resourceManager, new PhysicalFile{absolutePath}};
+  //  }
+
+private:
+  DELETE_COPY_AND_MOVE(PhysicalFileResourceTypeManager);
 };
 
 }  // namespace hi
