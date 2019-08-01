@@ -21,7 +21,7 @@ public:
 
   ~DataResourceTypeManager() override = default;
 
-  Resource<Data> load(hi::ResourceManager* resourceManager, nu::InputStream* inputStream) override {
+  Resource<Data> load(hi::ResourceManager*, nu::InputStream*) override {
     return Resource<Data>(nullptr);
   }
 
@@ -74,7 +74,17 @@ TEST_CASE("manually created resource") {
 
   Resource<Data> dataResource{&rm, new Data{1, 2}};
 
-  // rm.insert("data.1", dataResource);
+  rm.add("data.1", dataResource);
+
+  auto data1 = rm.get<Data>("data.1");
+
+  CHECK(data1->a == 1);
+  CHECK(data1->b == 2);
+
+  auto data1again = rm.get<Data>("data.1");
+
+  // We should be the same object as we expect it to come from the cache.
+  CHECK(data1.get() == data1again.get());
 }
 
 }  // namespace hi

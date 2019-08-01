@@ -20,16 +20,16 @@ public:
   explicit Cache(ResourceManager* resourceManager) : m_resourceManager{resourceManager} {}
 
   void add(const nu::StringView& name, const Resource<ResourceType>& resource) {
-    m_cache[name] = resource;
+    m_cache.insert(std::make_pair(name, resource));
   }
 
   Resource<ResourceType> get(const nu::StringView& name) {
     auto result = m_cache.find(name);
-    if (result == result.end()) {
+    if (result == m_cache.end()) {
       return Resource<ResourceType>{m_resourceManager, nullptr};
     }
 
-    return result.second;
+    return result->second;
   }
 
 private:

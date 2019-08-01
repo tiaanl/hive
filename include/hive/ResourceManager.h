@@ -33,6 +33,12 @@ public:
 
   template <typename ResourceType>
   Resource<ResourceType> get(const nu::StringView& name) {
+    auto cache = getCacheFor<ResourceType>();
+    auto cachedResource = cache->get(name);
+    if (cachedResource) {
+      return cachedResource;
+    }
+
     // Get a resource processor that will convert an `nu::InputStream` into the requested
     // `ResourceType`.
     auto resourceProcessor = getResourceProcessorFor<ResourceType>();
@@ -48,12 +54,19 @@ public:
       ResourceLocator* resourceLocator = i.second;
 
       if (resourceLocator->process(name, &processor)) {
+        cache->add(name, processor.result);
         return processor.result;
       }
     }
 
     // No `ResourceLocator` could convert the stream, so we return an empty resource.
     return Resource<ResourceType>{this, nullptr};
+  }
+
+  template <typename ResourceType>
+  void add(const nu::StringView& name, const Resource<ResourceType>& resource) {
+    auto cache = getCacheFor<ResourceType>();
+    cache->add(name, resource);
   }
 
 private:
@@ -96,7 +109,7 @@ private:
   }
 
   template <typename ResourceType>
-  ResourceProcessor<ResourceType>* getCacheFor() {
+  Cache<ResourceType>* getCacheFor() {
     auto typeId = typeIdFor<ResourceType>();
     auto result = m_caches.find(typeId);
     if (result == m_caches.end()) {
