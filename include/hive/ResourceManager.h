@@ -25,25 +25,25 @@ public:
   }
 
   template <typename ResourceType>
-  void registerResourceType(ResourceProcessor<ResourceType>* resourceTypeManager) {
-    auto typeId = ResourceProcessor<ResourceType>::template typeIdFor<ResourceType>();
+  void registerResourceProcessor(ResourceProcessor<ResourceType>* resourceTypeManager) {
+    auto typeId = typeIdFor<ResourceType>();
     m_resourceProcessors[typeId] = resourceTypeManager;
+    m_caches[typeId] = new Cache<ResourceType>{this};
   }
 
   template <typename ResourceType>
   Resource<ResourceType> get(const nu::StringView& name) {
-    nu::InputStream* inputStream = nullptr;
-
-    auto typeId = ResourceProcessor<ResourceType>::template typeIdFor<ResourceType>();
-    auto result = m_resourceProcessors.find(typeId);
-    if (result == m_resourceProcessors.end()) {
+    // Get a resource processor that will convert an `nu::InputStream` into the requested
+    // `ResourceType`.
+    auto resourceProcessor = getResourceProcessorFor<ResourceType>();
+    if (!resourceProcessor) {
       return Resource<ResourceType>{this};
     }
 
-    auto resourceProcessor = static_cast<ResourceProcessor<ResourceType>*>(result->second);
+    // Set up the processor that will do the work of converting the stream into a resource.
+    InternalResourceProcessor<ResourceType> processor{this, resourceProcessor};
 
-    DefaultResourceLocatorProcessor<ResourceType> processor{this, resourceProcessor};
-
+    // Find the first `ResourceLocator` that will convert the stream into a resource.
     for (auto& i : m_resourceLocators) {
       ResourceLocator* resourceLocator = i.second;
 
@@ -52,6 +52,7 @@ public:
       }
     }
 
+    // No `ResourceLocator` could convert the stream, so we return an empty resource.
     return Resource<ResourceType>{this, nullptr};
   }
 
@@ -59,13 +60,13 @@ private:
   DELETE_COPY_AND_MOVE(ResourceManager);
 
   template <typename ResourceType>
-  struct DefaultResourceLocatorProcessor : ResourceLocator::Processor {
+  struct InternalResourceProcessor : ResourceLocator::Processor {
     ResourceManager* resourceManager;
     ResourceProcessor<ResourceType>* resourceProcessor;
     Resource<ResourceType> result;
 
-    DefaultResourceLocatorProcessor(ResourceManager* resourceManager,
-                                    ResourceProcessor<ResourceType>* resourceProcessor)
+    InternalResourceProcessor(ResourceManager* resourceManager,
+                              ResourceProcessor<ResourceType>* resourceProcessor)
       : resourceManager{resourceManager}, resourceProcessor{resourceProcessor}, result{
                                                                                     resourceManager,
                                                                                     nullptr} {}
@@ -83,9 +84,32 @@ private:
     }
   };
 
+  template <typename ResourceType>
+  ResourceProcessor<ResourceType>* getResourceProcessorFor() {
+    auto typeId = typeIdFor<ResourceType>();
+    auto result = m_resourceProcessors.find(typeId);
+    if (result == m_resourceProcessors.end()) {
+      return nullptr;
+    }
+
+    return static_cast<ResourceProcessor<ResourceType>*>(result->second);
+  }
+
+  template <typename ResourceType>
+  ResourceProcessor<ResourceType>* getCacheFor() {
+    auto typeId = typeIdFor<ResourceType>();
+    auto result = m_caches.find(typeId);
+    if (result == m_caches.end()) {
+      return nullptr;
+    }
+
+    return static_cast<Cache<ResourceType>*>(result->second);
+  }
+
   std::map<I32, ResourceLocator*> m_resourceLocators;
 
   std::unordered_map<MemSize, ResourceProcessorBase*> m_resourceProcessors;
+  std::unordered_map<MemSize, CacheBase*> m_caches;
 };
 
 }  // namespace hi

@@ -35,56 +35,28 @@ struct Person : public nu::RefCounted<Person> {
   explicit Person(const nu::StringView& name) : name{name} {}
 };
 
-class PersonResourceTypeManager : public ResourceProcessor<Person> {
+class PersonResourceProcessor : public ResourceProcessor<Person> {
 public:
-  PersonResourceTypeManager() = default;
+  PersonResourceProcessor() = default;
 
   Resource<Person> load(hi::ResourceManager* resourceManager,
                         nu::InputStream* inputStream) override {
-    return Resource<Person>(nullptr);
-  }
-
-  //  Resource<Person> load(ResourceManager* resourceManager, nu::InputStream* inputStream) override {
-//    LOG(Info) << "Loading person. (" << name << ")";
-//    auto fileResource = resourceManager->get<File>(name);
-//    if (!fileResource) {
-//      return Resource<Person>{resourceManager};
-//    }
-//
-//    nu::StaticString<64> personName;
-//    NameProcessor np{&personName};
-//    fileResource->process(&np);
-//
-//    auto person = nu::makeScopedRefPtr<Person>(personName);
-//
-//    return Resource<Person>(resourceManager, person);
-//  }
-
-private:
-  struct NameProcessor : public FileProcessor {
     nu::Array<Char, 64> data;
-    nu::StaticString<64>* name;
-
-    void process(nu::InputStream* stream) override {
-      auto bytesRead = stream->read(data.getData(), 64);
-      name->append(data.getData(), bytesRead);
-    }
-
-    explicit NameProcessor(nu::StaticString<64>* name) : data{}, name(name) {}
-  };
+    auto bytesRead = inputStream->read(data.getData(), 64);
+    data[bytesRead] = 0;
+    
+    return Resource<Person>(resourceManager, new Person{data.getData()});
+  }
 };
 
 TEST_CASE("physical file resource") {
   ResourceManager rm;
 
-  PhysicalFileResourceLocator locator{nu::getCurrentWorkingDirectory()};
+  PhysicalFileResourceLocator locator{nu::FilePath{__FILE__}.dirName() / "resources"};
   rm.addResourceLocatorBack(&locator);
 
-  PhysicalFileResourceTypeManager pfrtm{nu::FilePath{__FILE__}.dirName() / "resources"};
-  rm.registerResourceType(&pfrtm);
-
-  PersonResourceTypeManager prtm;
-  rm.registerResourceType(&prtm);
+  PersonResourceProcessor personResourceProcessor;
+  rm.registerResourceProcessor(&personResourceProcessor);
 
   auto person = rm.get<Person>("person.john.txt");
 
@@ -95,7 +67,7 @@ TEST_CASE("physical file resource") {
 TEST_CASE("manually created resource") {
   ResourceManager rm;
   DataResourceTypeManager dataResourceTypeManager;
-  rm.registerResourceType(&dataResourceTypeManager);
+  rm.registerResourceProcessor(&dataResourceTypeManager);
 
   PhysicalFileResourceLocator locator{nu::getCurrentWorkingDirectory()};
   rm.addResourceLocatorBack(&locator);

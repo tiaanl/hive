@@ -14,6 +14,7 @@ set(hive_HEADER_FILES
     include/hive/Resources/Texture.h
     include/hive/ResourceProcessor.h
     include/hive/Utils.h
+    include/hive/Cache.h
     )
 
 set(hive_SOURCE_FILES
