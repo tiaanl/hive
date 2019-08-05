@@ -12,17 +12,10 @@ namespace hi {
 
 class ResourceManager {
 public:
-  ResourceManager() = default;
+  ResourceManager();
 
-  void addResourceLocatorFront(ResourceLocator* resourceLocator) {
-    auto firstIndex = m_resourceLocators.empty() ? 0 : m_resourceLocators.begin()->first;
-    m_resourceLocators[firstIndex - 1] = resourceLocator;
-  }
-
-  void addResourceLocatorBack(ResourceLocator* resourceLocator) {
-    auto lastIndex = m_resourceLocators.empty() ? 0 : m_resourceLocators.rbegin()->first;
-    m_resourceLocators[lastIndex + 1] = resourceLocator;
-  }
+  void addResourceLocatorFront(ResourceLocator* resourceLocator);
+  void addResourceLocatorBack(ResourceLocator* resourceLocator);
 
   template <typename ResourceType>
   void registerResourceProcessor(Converter<ResourceType>* resourceTypeManager) {

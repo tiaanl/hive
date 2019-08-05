@@ -10,7 +10,7 @@ class ResourceManager;
 
 class ConverterBase {
 public:
-  virtual ~ConverterBase() = default;
+  virtual ~ConverterBase();
 };
 
 template <typename ResourceType>

@@ -1,4 +1,5 @@
 
+#include "hive/PhysicalResourceLocator.h"
 #include "hive/ResourceManager.h"
 
 struct Employee {
