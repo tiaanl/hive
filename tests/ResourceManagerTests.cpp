@@ -1,90 +1,77 @@
+#include "hive/Converter.h"
 #include "hive/ResourceManager.h"
-#include "hive/ResourceProcessor.h"
-#include "hive/Resources/File.h"
 #include "nucleus/Containers/Array.h"
-#include "nucleus/RefCounted.h"
+#include "nucleus/Streams/WrappedMemoryInputStream.h"
 #include "nucleus/Testing.h"
 #include "nucleus/Text/StaticString.h"
 
 namespace hi {
 
-struct Data : public nu::RefCounted<Data> {
+struct Data {
   U32 a;
   U32 b;
-
-  Data(U32 a, U32 b) : a{a}, b{b} {}
 };
 
-class DataResourceTypeManager : public ResourceProcessor<Data> {
+class DataResourceTypeManager : public Converter<Data> {
 public:
-  DataResourceTypeManager() = default;
-
   ~DataResourceTypeManager() override = default;
 
-  Resource<Data> load(hi::ResourceManager*, nu::InputStream*) override {
-    return Resource<Data>(nullptr);
+  bool load(ResourceManager*, nu::InputStream* inputStream, Data* storage) override {
+    storage->a = inputStream->readU32();
+    storage->b = inputStream->readU32();
+    return true;
   }
-
-private:
-  DELETE_COPY_AND_MOVE(DataResourceTypeManager);
 };
 
-struct Person : public nu::RefCounted<Person> {
-  nu::StaticString<64> name;
-
-  explicit Person(const nu::StringView& name) : name{name} {}
-};
-
-class PersonResourceProcessor : public ResourceProcessor<Person> {
+class MockResourceLocator : public ResourceLocator {
 public:
-  PersonResourceProcessor() = default;
+  bool process(const nu::StringView& name, Processor* processor) override {
+    if (name == "data1") {
+      nu::DynamicArray<U32> data;
+      data.pushBack(1);
+      data.pushBack(2);
+      nu::WrappedMemoryInputStream stream{data.getData(), data.getSize() * sizeof(U32)};
+      processor->process(&stream);
+      return true;
+    }
 
-  Resource<Person> load(hi::ResourceManager* resourceManager,
-                        nu::InputStream* inputStream) override {
-    nu::Array<Char, 64> data;
-    auto bytesRead = inputStream->read(data.getData(), 64);
-    data[bytesRead] = 0;
-    
-    return Resource<Person>(resourceManager, new Person{data.getData()});
+    return false;
   }
 };
 
-TEST_CASE("physical file resource") {
-  ResourceManager rm;
+TEST_CASE("basic fetching") {
+  ResourceManager resourceManager;
 
-  PhysicalFileResourceLocator locator{nu::FilePath{__FILE__}.dirName() / "resources"};
-  rm.addResourceLocatorBack(&locator);
+  MockResourceLocator mockResourceLocator;
+  resourceManager.addResourceLocatorBack(&mockResourceLocator);
 
-  PersonResourceProcessor personResourceProcessor;
-  rm.registerResourceProcessor(&personResourceProcessor);
-
-  auto person = rm.get<Person>("person.john.txt");
-
-  CHECK(!person.isEmpty());
-  CHECK(person->name.subString(0, 4) == "john");
-}
-
-TEST_CASE("manually created resource") {
-  ResourceManager rm;
   DataResourceTypeManager dataResourceTypeManager;
-  rm.registerResourceProcessor(&dataResourceTypeManager);
+  resourceManager.registerResourceProcessor(&dataResourceTypeManager);
 
-  PhysicalFileResourceLocator locator{nu::getCurrentWorkingDirectory()};
-  rm.addResourceLocatorBack(&locator);
-
-  Resource<Data> dataResource{&rm, new Data{1, 2}};
-
-  rm.add("data.1", dataResource);
-
-  auto data1 = rm.get<Data>("data.1");
-
+  Data* data1 = resourceManager.get<Data>("data1");
   CHECK(data1->a == 1);
   CHECK(data1->b == 2);
 
-  auto data1again = rm.get<Data>("data.1");
+  Data* data2 = resourceManager.get<Data>("data1");
+  CHECK(data2->a == 1);
+  CHECK(data2->b == 2);
+}
 
-  // We should be the same object as we expect it to come from the cache.
-  CHECK(data1.get() == data1again.get());
+TEST_CASE("can get resources that was inserted without a locator") {
+  ResourceManager resourceManager;
+
+  DataResourceTypeManager dataResourceTypeManager;
+  resourceManager.registerResourceProcessor(&dataResourceTypeManager);
+
+  auto result = resourceManager.insert<Data>("data1", {1, 2});
+  CHECK(result != nullptr);
+  CHECK(result->a == 1);
+  CHECK(result->b == 2);
+
+  auto found = resourceManager.get<Data>("data1");
+  CHECK(found != nullptr);
+  CHECK(found->a == 1);
+  CHECK(found->b == 2);
 }
 
 }  // namespace hi

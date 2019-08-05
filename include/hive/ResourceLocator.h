@@ -28,6 +28,8 @@ public:
   bool process(const nu::StringView& name, Processor* processor) override {
     auto absolutePath = buildAbsolutePath(name);
 
+    LOG(Info) << "Loading physical file: " << absolutePath.getPath();
+
     if (!nu::exists(absolutePath)) {
       return false;
     }

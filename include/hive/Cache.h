@@ -1,42 +1,90 @@
 #ifndef HIVE_CACHE_H_
 #define HIVE_CACHE_H_
 
-#include "hive/Resource.h"
-#include "nucleus/Macros.h"
+#include "nucleus/Containers/GrowingArray.h"
 #include "nucleus/Text/StaticString.h"
-
-#include <map>
 
 namespace hi {
 
-class CacheBase {
-public:
-  virtual ~CacheBase() = default;
-};
-
 template <typename ResourceType>
-class Cache : public CacheBase {
+class Cache {
 public:
-  explicit Cache(ResourceManager* resourceManager) : m_resourceManager{resourceManager} {}
+  Cache() = default;
 
-  void add(const nu::StringView& name, const Resource<ResourceType>& resource) {
-    m_cache.insert(std::make_pair(name, resource));
-  }
+  class FindResult {
+  public:
+    friend class Cache;
 
-  Resource<ResourceType> get(const nu::StringView& name) {
-    auto result = m_cache.find(name);
-    if (result == m_cache.end()) {
-      return Resource<ResourceType>{m_resourceManager, nullptr};
+    bool found() const {
+      return m_found;
     }
 
-    return result->second;
+    const nu::StringView& getName() const {
+      return *m_name;
+    }
+
+    ResourceType& getResource() const {
+      return *m_resource;
+    }
+
+  private:
+    FindResult(bool found, nu::StringView* name, ResourceType* resource)
+      : m_found{found}, m_name{name}, m_resource{resource} {}
+
+    bool m_found;
+    nu::StringView* m_name = nullptr;
+    ResourceType* m_resource;
+  };
+
+  auto find(const nu::StringView& name) -> FindResult {
+    for (Entry& entry : m_entries) {
+      if (entry.name == name) {
+        return FindResult{true, &entry.name, &entry.resource};
+      }
+    }
+
+    return FindResult{false, nullptr, nullptr};
+  }
+
+  class InsertResult {
+  public:
+    bool wasInserted() const {
+      return m_wasInserted;
+    }
+
+    const nu::StringView& getName() const {
+      return m_name;
+    }
+
+    ResourceType& getResource() const {
+      return *m_resource;
+    }
+
+  private:
+    friend class Cache;
+
+    InsertResult(bool wasInserted, const nu::StringView& name, ResourceType* resource)
+      : m_wasInserted{wasInserted}, m_name{name}, m_resource{resource} {}
+
+    bool m_wasInserted;
+    nu::StringView m_name;
+    ResourceType* m_resource;
+  };
+
+  InsertResult insert(const nu::StringView& name, ResourceType resource) {
+    Entry* result = m_entries.append({name, resource});
+    return InsertResult{true, result->name, &result->resource};
   }
 
 private:
-  DELETE_COPY_AND_MOVE(Cache);
+  struct Entry {
+    nu::StaticString<128> name;
+    ResourceType resource;
+  };
 
-  ResourceManager* m_resourceManager;
-  std::map<nu::StaticString<128>, Resource<ResourceType>> m_cache;
+  nu::GrowingArray<Entry> m_entries;
+
+  DELETE_COPY_AND_MOVE(Cache);
 };
 
 }  // namespace hi

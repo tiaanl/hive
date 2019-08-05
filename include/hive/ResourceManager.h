@@ -1,9 +1,9 @@
 #ifndef HIVE_RESOURCE_MANAGER_H_
 #define HIVE_RESOURCE_MANAGER_H_
 
-#include "hive/Resource.h"
+#include "hive/Cache.h"
+#include "hive/Converter.h"
 #include "hive/ResourceLocator.h"
-#include "hive/ResourceProcessor.h"
 
 #include <map>
 #include <unordered_map>
@@ -25,104 +25,107 @@ public:
   }
 
   template <typename ResourceType>
-  void registerResourceProcessor(ResourceProcessor<ResourceType>* resourceTypeManager) {
+  void registerResourceProcessor(Converter<ResourceType>* resourceTypeManager) {
     auto typeId = typeIdFor<ResourceType>();
-    m_resourceProcessors[typeId] = resourceTypeManager;
-    m_caches[typeId] = new Cache<ResourceType>{this};
+    m_typeData.emplace(typeId, new TypeData<ResourceType>{resourceTypeManager});
   }
 
   template <typename ResourceType>
-  Resource<ResourceType> get(const nu::StringView& name) {
-    auto cache = getCacheFor<ResourceType>();
-    auto cachedResource = cache->get(name);
-    if (cachedResource) {
-      return cachedResource;
+  ResourceType* get(const nu::StringView& name) {
+    auto typeData = getTypeDataFor<ResourceType>();
+    if (!typeData) {
+      LOG(Error) << "Type not registered";
+      return nullptr;
     }
 
-    // Get a resource processor that will convert an `nu::InputStream` into the requested
-    // `ResourceType`.
-    auto resourceProcessor = getResourceProcessorFor<ResourceType>();
-    if (!resourceProcessor) {
-      return Resource<ResourceType>{this};
+    // If we have it cached already, then we return it.
+    auto findResult = typeData->cache.find(name);
+    if (findResult.found()) {
+      return &findResult.getResource();
     }
 
     // Set up the processor that will do the work of converting the stream into a resource.
-    InternalResourceProcessor<ResourceType> processor{this, resourceProcessor};
+    InternalResourceProcessor<ResourceType> processor{this, typeData->resourceProcessor};
 
     // Find the first `ResourceLocator` that will convert the stream into a resource.
     for (auto& i : m_resourceLocators) {
       ResourceLocator* resourceLocator = i.second;
 
       if (resourceLocator->process(name, &processor)) {
-        cache->add(name, processor.result);
-        return processor.result;
+        auto insertResult = typeData->cache.insert(name, processor.result);
+        if (!insertResult.wasInserted()) {
+          LOG(Warning) << "Could not add resource to cache";
+          return nullptr;
+        }
+
+        return &insertResult.getResource();
       }
     }
 
     // No `ResourceLocator` could convert the stream, so we return an empty resource.
-    return Resource<ResourceType>{this, nullptr};
+    return nullptr;
   }
 
   template <typename ResourceType>
-  void add(const nu::StringView& name, const Resource<ResourceType>& resource) {
-    auto cache = getCacheFor<ResourceType>();
-    cache->add(name, resource);
+  ResourceType* insert(const nu::StringView& name, ResourceType resource) {
+    auto typeData = getTypeDataFor<ResourceType>();
+    if (!typeData) {
+      LOG(Error) << "Type not registered";
+      return nullptr;
+    }
+
+    auto result = typeData->cache.insert(name, resource);
+    if (!result.wasInserted()) {
+      LOG(Error) << "Could not cache resource.";
+      return nullptr;
+    }
+
+    return &result.getResource();
   }
 
 private:
   DELETE_COPY_AND_MOVE(ResourceManager);
 
+  struct TypeDataBase {
+    virtual ~TypeDataBase() = default;
+  };
+
+  template <typename ResourceType>
+  struct TypeData : public TypeDataBase {
+    Converter<ResourceType>* resourceProcessor;
+    Cache<ResourceType> cache;
+
+    TypeData(Converter<ResourceType>* resourceProcessor) : resourceProcessor{resourceProcessor} {}
+  };
+
   template <typename ResourceType>
   struct InternalResourceProcessor : ResourceLocator::Processor {
     ResourceManager* resourceManager;
-    ResourceProcessor<ResourceType>* resourceProcessor;
-    Resource<ResourceType> result;
+    Converter<ResourceType>* resourceProcessor;
+    ResourceType result;
 
     InternalResourceProcessor(ResourceManager* resourceManager,
-                              ResourceProcessor<ResourceType>* resourceProcessor)
-      : resourceManager{resourceManager}, resourceProcessor{resourceProcessor}, result{
-                                                                                    resourceManager,
-                                                                                    nullptr} {}
+                              Converter<ResourceType>* resourceProcessor)
+      : resourceManager{resourceManager}, resourceProcessor{resourceProcessor} {}
 
     bool process(nu::InputStream* inputStream) override {
-      Resource<ResourceType> resource = resourceProcessor->load(resourceManager, inputStream);
-
-      if (!resource) {
-        return false;
-      }
-
-      result = resource;
-
-      return true;
+      return resourceProcessor->load(resourceManager, inputStream, &result);
     }
   };
 
   template <typename ResourceType>
-  ResourceProcessor<ResourceType>* getResourceProcessorFor() {
+  TypeData<ResourceType>* getTypeDataFor() {
     auto typeId = typeIdFor<ResourceType>();
-    auto result = m_resourceProcessors.find(typeId);
-    if (result == m_resourceProcessors.end()) {
+    auto it = m_typeData.find(typeId);
+    if (it == m_typeData.end()) {
       return nullptr;
     }
 
-    return static_cast<ResourceProcessor<ResourceType>*>(result->second);
-  }
-
-  template <typename ResourceType>
-  Cache<ResourceType>* getCacheFor() {
-    auto typeId = typeIdFor<ResourceType>();
-    auto result = m_caches.find(typeId);
-    if (result == m_caches.end()) {
-      return nullptr;
-    }
-
-    return static_cast<Cache<ResourceType>*>(result->second);
+    return static_cast<TypeData<ResourceType>*>(it->second);
   }
 
   std::map<I32, ResourceLocator*> m_resourceLocators;
-
-  std::unordered_map<MemSize, ResourceProcessorBase*> m_resourceProcessors;
-  std::unordered_map<MemSize, CacheBase*> m_caches;
+  std::unordered_map<TypeId, TypeDataBase*> m_typeData;
 };
 
 }  // namespace hi
