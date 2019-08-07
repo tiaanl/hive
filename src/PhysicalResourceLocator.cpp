@@ -12,8 +12,14 @@ nu::FilePath buildAbsolutePath(const nu::FilePath& rootPath, const nu::StringVie
 
 }  // namespace
 
+PhysicalFileResourceLocator::PhysicalFileResourceLocator() = default;
+
 PhysicalFileResourceLocator::PhysicalFileResourceLocator(const nu::FilePath& rootPath)
   : m_rootPath{rootPath} {}
+
+void PhysicalFileResourceLocator::setRootPath(const nu::FilePath& rootPath) {
+  m_rootPath = rootPath;
+}
 
 bool PhysicalFileResourceLocator::process(const nu::StringView& name, Processor* processor) {
   auto absolutePath = buildAbsolutePath(m_rootPath, name);

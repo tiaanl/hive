@@ -8,8 +8,16 @@ namespace hi {
 
 class PhysicalFileResourceLocator : public hi::ResourceLocator {
 public:
+  PhysicalFileResourceLocator();
   explicit PhysicalFileResourceLocator(const nu::FilePath& rootPath);
 
+  const nu::FilePath& getRootPath() const {
+    return m_rootPath;
+  }
+
+  void setRootPath(const nu::FilePath&);
+
+  // Override: hi::ResourceLocator
   bool process(const nu::StringView& name, Processor* processor) override;
 
 private:

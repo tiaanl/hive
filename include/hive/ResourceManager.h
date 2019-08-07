@@ -18,7 +18,7 @@ public:
   void addResourceLocatorBack(ResourceLocator* resourceLocator);
 
   template <typename ResourceType>
-  void registerResourceProcessor(Converter<ResourceType>* resourceTypeManager) {
+  void registerConverter(Converter<ResourceType>* resourceTypeManager) {
     auto typeId = typeIdFor<ResourceType>();
     m_typeData.emplace(typeId, new TypeData<ResourceType>{resourceTypeManager});
   }
@@ -79,6 +79,12 @@ public:
 private:
   DELETE_COPY_AND_MOVE(ResourceManager);
 
+  template <typename T>
+  static MemSize typeIdFor() {
+    static const char typeIdType = '\0';
+    return reinterpret_cast<MemSize>(&typeIdType);
+  }
+
   struct TypeDataBase {
     virtual ~TypeDataBase() = default;
   };
@@ -88,7 +94,8 @@ private:
     Converter<ResourceType>* resourceProcessor;
     Cache<ResourceType> cache;
 
-    TypeData(Converter<ResourceType>* resourceProcessor) : resourceProcessor{resourceProcessor} {}
+    explicit TypeData(Converter<ResourceType>* resourceProcessor)
+      : resourceProcessor{resourceProcessor} {}
   };
 
   template <typename ResourceType>
@@ -118,7 +125,7 @@ private:
   }
 
   std::map<I32, ResourceLocator*> m_resourceLocators;
-  std::unordered_map<TypeId, TypeDataBase*> m_typeData;
+  std::unordered_map<MemSize, TypeDataBase*> m_typeData;
 };
 
 }  // namespace hi

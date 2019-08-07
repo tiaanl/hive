@@ -44,7 +44,7 @@ int main() {
   resourceManager.addResourceLocatorBack(&physicalFileResourceLocator);
 
   EmployeeResourceProcessor employeeResourceProcessor;
-  resourceManager.registerResourceProcessor(&employeeResourceProcessor);
+  resourceManager.registerConverter(&employeeResourceProcessor);
 
   printEmployee(resourceManager, "john.txt");
   printEmployee(resourceManager, "sarah.txt");

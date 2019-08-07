@@ -12,7 +12,6 @@ set(hive_HEADER_FILES
     include/hive/PhysicalResourceLocator.h
     include/hive/ResourceLocator.h
     include/hive/ResourceManager.h
-    include/hive/TypeId.h
     )
 
 set(hive_SOURCE_FILES

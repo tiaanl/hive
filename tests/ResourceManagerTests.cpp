@@ -46,7 +46,7 @@ TEST_CASE("basic fetching") {
   resourceManager.addResourceLocatorBack(&mockResourceLocator);
 
   DataResourceTypeManager dataResourceTypeManager;
-  resourceManager.registerResourceProcessor(&dataResourceTypeManager);
+  resourceManager.registerConverter(&dataResourceTypeManager);
 
   Data* data1 = resourceManager.get<Data>("data1");
   CHECK(data1->a == 1);
@@ -61,7 +61,7 @@ TEST_CASE("can get resources that was inserted without a locator") {
   ResourceManager resourceManager;
 
   DataResourceTypeManager dataResourceTypeManager;
-  resourceManager.registerResourceProcessor(&dataResourceTypeManager);
+  resourceManager.registerConverter(&dataResourceTypeManager);
 
   auto result = resourceManager.insert<Data>("data1", {1, 2});
   CHECK(result != nullptr);
