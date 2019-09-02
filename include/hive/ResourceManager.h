@@ -45,7 +45,7 @@ public:
       ResourceLocator* resourceLocator = i.second;
 
       if (resourceLocator->process(name, &processor)) {
-        auto insertResult = typeData->cache.insert(name, processor.result);
+        auto insertResult = typeData->cache.insert(name, std::move(processor.result));
         if (!insertResult.wasInserted()) {
           LOG(Warning) << "Could not add resource to cache";
           return nullptr;
