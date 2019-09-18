@@ -24,18 +24,20 @@ void PhysicalFileResourceLocator::setRootPath(const nu::FilePath& rootPath) {
 bool PhysicalFileResourceLocator::process(const nu::StringView& name, Processor* processor) {
   auto absolutePath = buildAbsolutePath(m_rootPath, name);
 
-  LOG(Info) << "Loading physical file: " << absolutePath.getPath();
-
   if (!nu::exists(absolutePath)) {
+    LOG(Warning) << "Physical file not found: " << absolutePath.getPath();
     return false;
   }
+
+  LOG(Info) << "Loading physical file: " << absolutePath.getPath();
 
   nu::FileInputStream fileInputStream{absolutePath};
   if (!fileInputStream.openedOk()) {
+    LOG(Error) << "Could not open physical file: " << absolutePath.getPath();
     return false;
   }
 
-  return processor->process(&fileInputStream);
+  return processor->process(name, &fileInputStream);
 }
 
 }  // namespace hi

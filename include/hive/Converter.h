@@ -2,6 +2,7 @@
 #define HIVE_RESOURCE_TYPE_MANAGER_H_
 
 #include "nucleus/Streams/InputStream.h"
+#include "nucleus/Text/StringView.h"
 
 namespace hi {
 
@@ -18,8 +19,8 @@ public:
   Converter() = default;
   ~Converter() override = default;
 
-  virtual bool load(ResourceManager* resourceManager, nu::InputStream* inputStream,
-                    ResourceType* storage) = 0;
+  virtual bool load(ResourceManager* resourceManager, const nu::StringView& name,
+                    nu::InputStream* inputStream, ResourceType* storage) = 0;
 
 private:
   DELETE_COPY_AND_MOVE(Converter);

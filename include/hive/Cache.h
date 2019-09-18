@@ -72,7 +72,7 @@ public:
   };
 
   InsertResult insert(const nu::StringView& name, ResourceType resource) {
-    Entry* result = m_entries.append({name, resource});
+    Entry* result = m_entries.emplace({name, std::move(resource)});
     return InsertResult{true, result->name, &result->resource};
   }
 

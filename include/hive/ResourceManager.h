@@ -25,9 +25,9 @@ public:
 
   template <typename ResourceType>
   ResourceType* get(const nu::StringView& name) {
-    auto typeData = getTypeDataFor<ResourceType>();
+    auto* typeData = getTypeDataFor<ResourceType>();
     if (!typeData) {
-      LOG(Error) << "Type not registered";
+      LOG(Error) << "Type not registered.";
       return nullptr;
     }
 
@@ -63,7 +63,7 @@ public:
   ResourceType* insert(const nu::StringView& name, ResourceType resource) {
     auto typeData = getTypeDataFor<ResourceType>();
     if (!typeData) {
-      LOG(Error) << "Type not registered";
+      LOG(Error) << "Type not registered.";
       return nullptr;
     }
 
@@ -74,6 +74,17 @@ public:
     }
 
     return &result.getResource();
+  }
+
+  template <typename ResourceType>
+  void release(ResourceType* UNUSED(resourceType)) {
+    auto* typeData = getTypeDataFor<ResourceType>();
+    if (!typeData) {
+      LOG(Error) << "Type not registered.";
+      return;
+    }
+
+    // TODO: Release the resource :)
   }
 
 private:
@@ -101,15 +112,14 @@ private:
   template <typename ResourceType>
   struct InternalResourceProcessor : ResourceLocator::Processor {
     ResourceManager* resourceManager;
-    Converter<ResourceType>* resourceProcessor;
+    Converter<ResourceType>* converter;
     ResourceType result;
 
-    InternalResourceProcessor(ResourceManager* resourceManager,
-                              Converter<ResourceType>* resourceProcessor)
-      : resourceManager{resourceManager}, resourceProcessor{resourceProcessor} {}
+    InternalResourceProcessor(ResourceManager* resourceManager, Converter<ResourceType>* converter)
+      : resourceManager{resourceManager}, converter{converter} {}
 
-    bool process(nu::InputStream* inputStream) override {
-      return resourceProcessor->load(resourceManager, inputStream, &result);
+    bool process(const nu::StringView& name, nu::InputStream* inputStream) override {
+      return converter->load(resourceManager, name, inputStream, &result);
     }
   };
 
