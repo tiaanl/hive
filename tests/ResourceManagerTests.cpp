@@ -16,7 +16,8 @@ class DataResourceTypeManager : public Converter<Data> {
 public:
   ~DataResourceTypeManager() override = default;
 
-  bool load(ResourceManager*, nu::InputStream* inputStream, Data* storage) override {
+  bool load(ResourceManager*, const nu::StringView&, nu::InputStream* inputStream,
+            Data* storage) override {
     storage->a = inputStream->readU32();
     storage->b = inputStream->readU32();
     return true;
@@ -30,8 +31,8 @@ public:
       nu::DynamicArray<U32> data;
       data.pushBack(1);
       data.pushBack(2);
-      nu::WrappedMemoryInputStream stream{data.getData(), data.getSize() * sizeof(U32)};
-      processor->process(&stream);
+      nu::WrappedMemoryInputStream stream{data.data(), data.size() * sizeof(U32)};
+      processor->process(name, &stream);
       return true;
     }
 

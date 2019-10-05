@@ -9,7 +9,8 @@ struct Employee {
 
 class EmployeeResourceProcessor : public hi::Converter<Employee> {
 public:
-  bool load(hi::ResourceManager*, nu::InputStream* inputStream, Employee* storage) override {
+  bool load(hi::ResourceManager* resourceManager, const nu::StringView& name,
+            nu::InputStream* inputStream, Employee* storage) override {
     {
       auto bytesRead =
           inputStream->readUntil(storage->name.getData(), storage->name.getStorageSize(), '\n');

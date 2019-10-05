@@ -1,0 +1,3 @@
+
+nucleus_add_executable(DatabaseSample DatabaseSample.cpp)
+target_link_libraries(DatabaseSample PUBLIC hive)
