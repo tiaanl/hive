@@ -14,5 +14,4 @@ void ResourceManager::addResourceLocatorBack(ResourceLocator* resourceLocator) {
   m_resourceLocators[lastIndex + 1] = resourceLocator;
 }
 
-
 }  // namespace hi
