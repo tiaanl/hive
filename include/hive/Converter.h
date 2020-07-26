@@ -16,6 +16,8 @@ public:
 template <typename ResourceType>
 class Converter : public ConverterBase {
 public:
+  NU_DELETE_COPY_AND_MOVE(Converter);
+
   Converter() = default;
   ~Converter() override = default;
 
@@ -23,8 +25,6 @@ public:
                     nu::InputStream* inputStream, ResourceType* storage) = 0;
 
 private:
-  DELETE_COPY_AND_MOVE(Converter);
-
   friend class hi::ResourceManager;
 };
 

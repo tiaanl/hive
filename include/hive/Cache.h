@@ -1,7 +1,8 @@
 #ifndef HIVE_CACHE_H_
 #define HIVE_CACHE_H_
 
-#include "nucleus/Containers/GrowingArray.h"
+#include "nucleus/Containers/DynamicArray.h"
+#include "nucleus/Memory/ScopedPtr.h"
 #include "nucleus/Text/StaticString.h"
 
 namespace hi {
@@ -9,6 +10,8 @@ namespace hi {
 template <typename ResourceType>
 class Cache {
 public:
+  NU_DELETE_COPY_AND_MOVE(Cache);
+
   Cache() = default;
 
   class FindResult {
@@ -37,9 +40,9 @@ public:
   };
 
   auto find(const nu::StringView& name) -> FindResult {
-    for (Entry& entry : m_entries) {
-      if (entry.name == name) {
-        return FindResult{true, &entry.name, &entry.resource};
+    for (auto& entry : m_entries) {
+      if (entry->name == name) {
+        return FindResult{true, &entry->name, &(entry->resource)};
       }
     }
 
@@ -52,11 +55,11 @@ public:
       return m_wasInserted;
     }
 
-    const nu::StringView& getName() const {
+    nu::StringView getName() const {
       return m_name;
     }
 
-    ResourceType& getResource() const {
+    ResourceType& getResource() {
       return *m_resource;
     }
 
@@ -71,20 +74,28 @@ public:
     ResourceType* m_resource;
   };
 
-  InsertResult insert(const nu::StringView& name, ResourceType resource) {
-    Entry* result = m_entries.emplace({name, std::move(resource)});
-    return InsertResult{true, result->name, &result->resource};
+  InsertResult insert(nu::StringView name, ResourceType resource) {
+    auto result = m_entries.emplaceBack(new Entry(name, std::move(resource)));
+    return {true, name, &result.element()->resource};
+  }
+
+  template <typename... Args>
+  InsertResult emplace(const nu::StringView& name, Args&&... args) {
+    Entry* result = m_entries.emplace(name, std::forward<Args>(args)...);
+    return InsertResult(true, result->name, &result->resource);
   }
 
 private:
   struct Entry {
     nu::StaticString<128> name;
     ResourceType resource;
+
+    Entry() : name{}, resource{} {}
+    Entry(nu::StringView name, ResourceType&& resource)
+      : name{name}, resource{std::forward<ResourceType>(resource)} {}
   };
 
-  nu::GrowingArray<Entry> m_entries;
-
-  DELETE_COPY_AND_MOVE(Cache);
+  nu::DynamicArray<nu::ScopedPtr<Entry>> m_entries;
 };
 
 }  // namespace hi

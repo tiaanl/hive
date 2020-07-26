@@ -1,17 +1,19 @@
 #ifndef HIVE_RESOURCE_MANAGER_H_
 #define HIVE_RESOURCE_MANAGER_H_
 
+#include <map>
+#include <unordered_map>
+
 #include "hive/Cache.h"
 #include "hive/Converter.h"
 #include "hive/ResourceLocator.h"
-
-#include <map>
-#include <unordered_map>
 
 namespace hi {
 
 class ResourceManager {
 public:
+  NU_DELETE_COPY_AND_MOVE(ResourceManager);
+
   ResourceManager();
 
   void addResourceLocatorFront(ResourceLocator* resourceLocator);
@@ -77,7 +79,7 @@ public:
   }
 
   template <typename ResourceType>
-  void release(ResourceType* UNUSED(resourceType)) {
+  void release(ResourceType* NU_UNUSED(resourceType)) {
     auto* typeData = getTypeDataFor<ResourceType>();
     if (!typeData) {
       LOG(Error) << "Type not registered.";
@@ -88,8 +90,6 @@ public:
   }
 
 private:
-  DELETE_COPY_AND_MOVE(ResourceManager);
-
   template <typename T>
   static MemSize typeIdFor() {
     static const char typeIdType = '\0';

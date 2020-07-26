@@ -8,6 +8,8 @@ namespace hi {
 
 class PhysicalFileResourceLocator : public hi::ResourceLocator {
 public:
+  NU_DELETE_COPY_AND_MOVE(PhysicalFileResourceLocator);
+
   PhysicalFileResourceLocator();
   explicit PhysicalFileResourceLocator(const nu::FilePath& rootPath);
 
@@ -21,8 +23,6 @@ public:
   bool process(const nu::StringView& name, Processor* processor) override;
 
 private:
-  DELETE_COPY_AND_MOVE(PhysicalFileResourceLocator);
-
   nu::FilePath m_rootPath;
 };
 

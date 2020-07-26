@@ -1,6 +1,7 @@
 
 #include "hive/PhysicalResourceLocator.h"
 #include "hive/ResourceManager.h"
+#include "nucleus/Macros.h"
 
 struct Employee {
   nu::StaticString<128> name;
@@ -9,19 +10,19 @@ struct Employee {
 
 class EmployeeResourceProcessor : public hi::Converter<Employee> {
 public:
-  bool load(hi::ResourceManager* resourceManager, const nu::StringView& name,
+  bool load(hi::ResourceManager* NU_UNUSED(resourceManager), const nu::StringView& NU_UNUSED(name),
             nu::InputStream* inputStream, Employee* storage) override {
     {
       auto bytesRead =
-          inputStream->readUntil(storage->name.getData(), storage->name.getStorageSize(), '\n');
-      storage->name = nu::StringView(storage->name, bytesRead - 1);
+          inputStream->readUntil(storage->name.data(), storage->name.getStorageSize(), '\n');
+      storage->name = nu::StringView{storage->name.data(), bytesRead - 1};
     }
 
     {
       nu::StaticString<64> temp;
-      auto bytesRead = inputStream->readUntil(temp.getData(), temp.getStorageSize(), '\n');
-      temp = nu::StringView(temp, bytesRead - 1);
-      storage->age = std::strtol(temp.getData(), nullptr, 10);
+      auto bytesRead = inputStream->readUntil(temp.data(), temp.getStorageSize(), '\n');
+      temp = nu::StringView{temp.data(), bytesRead - 1};
+      storage->age = std::strtol(temp.data(), nullptr, 10);
     }
     return true;
   }
