@@ -1,5 +1,6 @@
+#include <catch2/catch.hpp>
+
 #include "hive/Cache.h"
-#include "nucleus/Testing.h"
 
 namespace hi {
 
@@ -25,9 +26,9 @@ TEST_CASE("find existing item in cache") {
 
   auto findResult = cache.find("item1");
   CHECK(findResult.found());
-  CHECK(findResult.getName() =="item1");
-  CHECK(findResult.getResource().a == 1);
-  CHECK(findResult.getResource().b == 2);
+  CHECK(findResult.name() == "item1");
+  CHECK(findResult.resource().a == 1);
+  CHECK(findResult.resource().b == 2);
 
   auto notFoundResult = cache.find("item2");
   CHECK(!notFoundResult.found());

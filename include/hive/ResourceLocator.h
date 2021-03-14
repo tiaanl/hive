@@ -10,12 +10,12 @@ class ResourceLocator {
 public:
   struct Processor {
     virtual ~Processor() = default;
-    virtual bool process(const nu::StringView& name, nu::InputStream* inputStream) = 0;
+    virtual bool process(nu::StringView name, nu::InputStream* inputStream) = 0;
   };
 
   virtual ~ResourceLocator();
 
-  virtual bool process(const nu::StringView& name, Processor* processor) = 0;
+  virtual bool process(nu::StringView name, Processor* processor) = 0;
 };
 
 }  // namespace hi

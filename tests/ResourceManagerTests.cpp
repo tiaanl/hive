@@ -1,9 +1,11 @@
+#include <catch2/catch.hpp>
+
 #include "hive/Converter.h"
 #include "hive/ResourceManager.h"
-#include "nucleus/Containers/Array.h"
-#include "nucleus/Streams/WrappedMemoryInputStream.h"
-#include "nucleus/Testing.h"
-#include "nucleus/Text/StaticString.h"
+#include "nucleus/Containers/DynamicArray.h"
+#include "nucleus/Streams/ArrayInputStream.h"
+#include "nucleus/Streams/DynamicBufferOutputStream.h"
+#include "nucleus/Streams/MemoryInputStream.h"
 
 namespace hi {
 
@@ -26,12 +28,14 @@ public:
 
 class MockResourceLocator : public ResourceLocator {
 public:
-  bool process(const nu::StringView& name, Processor* processor) override {
+  bool process(nu::StringView name, Processor* processor) override {
     if (name == "data1") {
-      nu::DynamicArray<U32> data;
-      data.pushBack(1);
-      data.pushBack(2);
-      nu::WrappedMemoryInputStream stream{data.data(), data.size() * sizeof(U32)};
+      nu::DynamicBufferOutputStream buffer;
+      buffer.writeU32(1);
+      buffer.writeU32(2);
+
+      nu::MemoryInputStream stream{buffer.buffer()};
+
       processor->process(name, &stream);
       return true;
     }

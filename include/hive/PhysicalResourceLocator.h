@@ -20,7 +20,7 @@ public:
   void setRootPath(const nu::FilePath&);
 
   // Override: hi::ResourceLocator
-  bool process(const nu::StringView& name, Processor* processor) override;
+  bool process(nu::StringView name, Processor* processor) override;
 
 private:
   nu::FilePath m_rootPath;

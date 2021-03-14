@@ -36,7 +36,7 @@ public:
     // If we have it cached already, then we return it.
     auto findResult = typeData->cache.find(name);
     if (findResult.found()) {
-      return &findResult.getResource();
+      return &findResult.resource();
     }
 
     // Set up the processor that will do the work of converting the stream into a resource.
@@ -118,7 +118,7 @@ private:
     InternalResourceProcessor(ResourceManager* resourceManager, Converter<ResourceType>* converter)
       : resourceManager{resourceManager}, converter{converter} {}
 
-    bool process(const nu::StringView& name, nu::InputStream* inputStream) override {
+    bool process(nu::StringView name, nu::InputStream* inputStream) override {
       return converter->load(resourceManager, name, inputStream, &result);
     }
   };

@@ -18,35 +18,35 @@ public:
   public:
     friend class Cache;
 
-    bool found() const {
+    [[nodiscard]] bool found() const {
       return m_found;
     }
 
-    const nu::StringView& getName() const {
-      return *m_name;
+    [[nodiscard]] nu::StringView name() const {
+      return m_name;
     }
 
-    ResourceType& getResource() const {
+    [[nodiscard]] ResourceType& resource() const {
       return *m_resource;
     }
 
   private:
-    FindResult(bool found, nu::StringView* name, ResourceType* resource)
+    FindResult(bool found, nu::StringView name, ResourceType* resource)
       : m_found{found}, m_name{name}, m_resource{resource} {}
 
     bool m_found;
-    nu::StringView* m_name = nullptr;
+    nu::StringView m_name;
     ResourceType* m_resource;
   };
 
   auto find(const nu::StringView& name) -> FindResult {
-    for (auto& entry : m_entries) {
-      if (entry->name == name) {
-        return FindResult{true, &entry->name, &(entry->resource)};
+    for (nu::ScopedPtr<Entry>& entry : m_entries) {
+      if (entry->name.view() == name) {
+        return FindResult{true, entry->name.view(), &entry->resource};
       }
     }
 
-    return FindResult{false, nullptr, nullptr};
+    return FindResult{false, {}, nullptr};
   }
 
   class InsertResult {
