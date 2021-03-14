@@ -1,12 +1,12 @@
-#ifndef HIVE_RESOURCE_MANAGER_H_
-#define HIVE_RESOURCE_MANAGER_H_
+#pragma once
 
 #include <map>
-#include <unordered_map>
 
-#include "hive/Cache.h"
 #include "hive/Converter.h"
 #include "hive/ResourceLocator.h"
+#include "nucleus/Containers/hash_map.h"
+#include "nucleus/Memory/ScopedPtr.h"
+#include "nucleus/Text/DynamicString.h"
 
 namespace hi {
 
@@ -22,7 +22,8 @@ public:
   template <typename ResourceType>
   void registerConverter(Converter<ResourceType>* resourceTypeManager) {
     auto typeId = typeIdFor<ResourceType>();
-    m_typeData.emplace(typeId, new TypeData<ResourceType>{resourceTypeManager});
+    nu::ScopedPtr<TypeDataBase> typeData{new TypeData<ResourceType>{resourceTypeManager}};
+    m_typeData.set(typeId, std::move(typeData));
   }
 
   template <typename ResourceType>
@@ -35,8 +36,8 @@ public:
 
     // If we have it cached already, then we return it.
     auto findResult = typeData->cache.find(name);
-    if (findResult.found()) {
-      return &findResult.resource();
+    if (findResult != typeData->cache.end()) {
+      return &findResult->value;
     }
 
     // Set up the processor that will do the work of converting the stream into a resource.
@@ -47,13 +48,8 @@ public:
       ResourceLocator* resourceLocator = i.second;
 
       if (resourceLocator->process(name, &processor)) {
-        auto insertResult = typeData->cache.insert(name, std::move(processor.result));
-        if (!insertResult.wasInserted()) {
-          LOG(Warning) << "Could not add resource to cache";
-          return nullptr;
-        }
-
-        return &insertResult.getResource();
+        auto result = typeData->cache.set(name, std::move(processor.result));
+        return &result.value();
       }
     }
 
@@ -69,13 +65,8 @@ public:
       return nullptr;
     }
 
-    auto result = typeData->cache.insert(name, resource);
-    if (!result.wasInserted()) {
-      LOG(Error) << "Could not cache resource.";
-      return nullptr;
-    }
-
-    return &result.getResource();
+    auto result = typeData->cache.set(name, resource);
+    return &result.value();
   }
 
   template <typename ResourceType>
@@ -103,7 +94,7 @@ private:
   template <typename ResourceType>
   struct TypeData : public TypeDataBase {
     Converter<ResourceType>* resourceProcessor;
-    Cache<ResourceType> cache;
+    nu::HashMap<nu::DynamicString, ResourceType> cache;
 
     explicit TypeData(Converter<ResourceType>* resourceProcessor)
       : resourceProcessor{resourceProcessor} {}
@@ -131,13 +122,11 @@ private:
       return nullptr;
     }
 
-    return static_cast<TypeData<ResourceType>*>(it->second);
+    return static_cast<TypeData<ResourceType>*>(it->value.get());
   }
 
   std::map<I32, ResourceLocator*> m_resourceLocators;
-  std::unordered_map<MemSize, TypeDataBase*> m_typeData;
+  nu::HashMap<MemSize, nu::ScopedPtr<TypeDataBase>> m_typeData;
 };
 
 }  // namespace hi
-
-#endif  // HIVE_RESOURCE_MANAGER_H_

@@ -9,7 +9,6 @@ project(hive)
 add_subdirectory(../nucleus nucleus)
 
 set(hive_HEADER_FILES
-    include/hive/Cache.h
     include/hive/Converter.h
     include/hive/PhysicalResourceLocator.h
     include/hive/ResourceLocator.h
@@ -24,7 +23,6 @@ set(hive_SOURCE_FILES
     )
 
 set(hive_TESTS_SOURCE_FILES
-    tests/CacheTests.cpp
     tests/ResourceManagerTests.cpp
     )
 
