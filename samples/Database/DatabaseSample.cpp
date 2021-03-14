@@ -14,13 +14,13 @@ public:
             nu::InputStream* inputStream, Employee* storage) override {
     {
       auto bytesRead =
-          inputStream->readUntil(storage->name.data(), storage->name.getStorageSize(), '\n');
+          inputStream->readUntil(storage->name.data(), storage->name.capacity(), '\n');
       storage->name = nu::StringView{storage->name.data(), bytesRead - 1};
     }
 
     {
       nu::StaticString<64> temp;
-      auto bytesRead = inputStream->readUntil(temp.data(), temp.getStorageSize(), '\n');
+      auto bytesRead = inputStream->readUntil(temp.data(), temp.capacity(), '\n');
       temp = nu::StringView{temp.data(), bytesRead - 1};
       storage->age = std::strtol(temp.data(), nullptr, 10);
     }
@@ -49,7 +49,7 @@ int main() {
   resourceManager.registerConverter(&employeeResourceProcessor);
 
   printEmployee(resourceManager, "john.txt");
-  printEmployee(resourceManager, "sarah.txt");
+  printEmployee(resourceManager, "jane.txt");
 
   return 0;
 }
