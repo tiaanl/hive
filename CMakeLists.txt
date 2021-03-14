@@ -6,8 +6,6 @@ endif ()
 
 project(hive)
 
-find_package(Catch2 CONFIG REQUIRED)
-
 add_subdirectory(../nucleus nucleus)
 
 set(hive_HEADER_FILES
@@ -28,14 +26,12 @@ set(hive_SOURCE_FILES
 set(hive_TESTS_SOURCE_FILES
     tests/CacheTests.cpp
     tests/ResourceManagerTests.cpp
-    tests/TestsMain.cpp
     )
 
 nucleus_add_library(hive ${hive_HEADER_FILES} ${hive_SOURCE_FILES})
 target_link_libraries(hive PUBLIC nucleus)
 
 nucleus_add_executable(hiveTests ${hive_TESTS_SOURCE_FILES})
-target_link_libraries(hiveTests PRIVATE hive)
-target_link_libraries(hiveTests PRIVATE Catch2::Catch2)
+target_link_libraries(hiveTests PRIVATE hive testsMain)
 
 add_subdirectory(samples)
