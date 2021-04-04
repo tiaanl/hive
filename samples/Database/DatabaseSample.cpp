@@ -2,6 +2,7 @@
 #include "hive/PhysicalResourceLocator.h"
 #include "hive/ResourceManager.h"
 #include "nucleus/Macros.h"
+#include "nucleus/Text/StaticString.h"
 
 struct Employee {
   nu::StaticString<128> name;
@@ -13,8 +14,7 @@ public:
   bool load(hi::ResourceManager* NU_UNUSED(resourceManager), const nu::StringView& NU_UNUSED(name),
             nu::InputStream* inputStream, Employee* storage) override {
     {
-      auto bytesRead =
-          inputStream->readUntil(storage->name.data(), storage->name.capacity(), '\n');
+      auto bytesRead = inputStream->readUntil(storage->name.data(), storage->name.capacity(), '\n');
       storage->name = nu::StringView{storage->name.data(), bytesRead - 1};
     }
 
