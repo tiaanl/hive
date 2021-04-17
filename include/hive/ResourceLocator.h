@@ -1,5 +1,4 @@
-#ifndef HIVE_RESOURCE_LOCATOR_H_
-#define HIVE_RESOURCE_LOCATOR_H_
+#pragma once
 
 #include "nucleus/Streams/InputStream.h"
 #include "nucleus/Text/StringView.h"
@@ -19,5 +18,3 @@ public:
 };
 
 }  // namespace hi
-
-#endif  // HIVE_RESOURCE_LOCATOR_H_

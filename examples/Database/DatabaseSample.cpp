@@ -11,7 +11,7 @@ struct Employee {
 
 class EmployeeResourceProcessor : public hi::Converter<Employee> {
 public:
-  bool load(hi::ResourceManager* NU_UNUSED(resourceManager), const nu::StringView& NU_UNUSED(name),
+  bool load(hi::ResourceManager* NU_UNUSED(resourceManager), nu::StringView NU_UNUSED(name),
             nu::InputStream* inputStream, Employee* storage) override {
     {
       auto bytesRead = inputStream->readUntil(storage->name.data(), storage->name.capacity(), '\n');
@@ -22,7 +22,7 @@ public:
       nu::StaticString<64> temp;
       auto bytesRead = inputStream->readUntil(temp.data(), temp.capacity(), '\n');
       temp = nu::StringView{temp.data(), bytesRead - 1};
-      storage->age = std::strtol(temp.data(), nullptr, 10);
+      storage->age = static_cast<decltype(storage->age)>(std::strtol(temp.data(), nullptr, 10));
     }
     return true;
   }

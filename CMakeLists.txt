@@ -32,4 +32,4 @@ target_link_libraries(hive PUBLIC nucleus)
 nucleus_add_executable(hiveTests ${hive_TESTS_SOURCE_FILES})
 target_link_libraries(hiveTests PRIVATE hive testsMain)
 
-add_subdirectory(samples)
+add_subdirectory(examples)

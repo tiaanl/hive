@@ -1,5 +1,4 @@
-#ifndef HIVE_PHYSICAL_RESOURCE_LOCATOR_H_
-#define HIVE_PHYSICAL_RESOURCE_LOCATOR_H_
+#pragma once
 
 #include "hive/ResourceLocator.h"
 #include "nucleus/FilePath.h"
@@ -27,5 +26,3 @@ private:
 };
 
 }  // namespace hi
-
-#endif  // HIVE_PHYSICAL_RESOURCE_LOCATOR_H_
