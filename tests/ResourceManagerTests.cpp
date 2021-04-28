@@ -18,7 +18,7 @@ class DataResourceTypeManager : public Converter<Data> {
 public:
   ~DataResourceTypeManager() override = default;
 
-  bool load(ResourceManager*, const nu::StringView&, nu::InputStream* inputStream,
+  bool load(ResourceManager*, nu::StringView, nu::InputStream* inputStream,
             Data* storage) override {
     storage->a = inputStream->readU32();
     storage->b = inputStream->readU32();
