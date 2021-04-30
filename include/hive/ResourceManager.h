@@ -22,8 +22,7 @@ public:
   template <typename ResourceType>
   void registerConverter(Converter<ResourceType>* resourceTypeManager) {
     auto typeId = typeIdFor<ResourceType>();
-    nu::ScopedPtr<TypeDataBase> typeData{new TypeData<ResourceType>{resourceTypeManager}};
-    m_typeData.set(typeId, std::move(typeData));
+    m_typeData.insert({typeId, new TypeData<ResourceType>{resourceTypeManager}});
   }
 
   template <typename ResourceType>
@@ -37,7 +36,7 @@ public:
     // If we have it cached already, then we return it.
     auto findResult = typeData->cache.find(name);
     if (findResult != typeData->cache.end()) {
-      return &findResult->value;
+      return &findResult->second;
     }
 
     // Set up the processor that will do the work of converting the stream into a resource.
@@ -48,8 +47,8 @@ public:
       ResourceLocator* resourceLocator = i.second;
 
       if (resourceLocator->process(name, &processor)) {
-        auto result = typeData->cache.set(name, std::move(processor.result));
-        return &result.value();
+        auto [it, inserted] = typeData->cache.insert({name, std::move(processor.result)});
+        return &it->second;
       }
     }
 
@@ -94,7 +93,7 @@ private:
   template <typename ResourceType>
   struct TypeData : public TypeDataBase {
     Converter<ResourceType>* resourceProcessor;
-    nu::HashMap<nu::DynamicString, ResourceType> cache;
+    std::unordered_map<nu::DynamicString, ResourceType> cache;
 
     explicit TypeData(Converter<ResourceType>* resourceProcessor)
       : resourceProcessor{resourceProcessor} {}
@@ -122,11 +121,11 @@ private:
       return nullptr;
     }
 
-    return static_cast<TypeData<ResourceType>*>(it->value.get());
+    return static_cast<TypeData<ResourceType>*>(it->second);
   }
 
   std::map<I32, ResourceLocator*> m_resourceLocators;
-  nu::HashMap<MemSize, nu::ScopedPtr<TypeDataBase>> m_typeData;
+  std::unordered_map<MemSize, TypeDataBase*> m_typeData;
 };
 
 }  // namespace hi
