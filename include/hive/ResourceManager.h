@@ -35,8 +35,8 @@ public:
 
     // If we have it cached already, then we return it.
     auto findResult = typeData->cache.find(name);
-    if (findResult != typeData->cache.end()) {
-      return &findResult->second;
+    if (findResult.was_found()) {
+      return &findResult.value();
     }
 
     // Set up the processor that will do the work of converting the stream into a resource.
@@ -47,8 +47,8 @@ public:
       ResourceLocator* resourceLocator = i.second;
 
       if (resourceLocator->process(name, &processor)) {
-        auto [it, inserted] = typeData->cache.insert({name, std::move(processor.result)});
-        return &it->second;
+        auto result = typeData->cache.insert(name, std::move(processor.result));
+        return &result.value();
       }
     }
 
@@ -64,7 +64,7 @@ public:
       return nullptr;
     }
 
-    auto result = typeData->cache.set(name, resource);
+    auto result = typeData->cache.insert(name, resource);
     return &result.value();
   }
 
@@ -93,7 +93,7 @@ private:
   template <typename ResourceType>
   struct TypeData : public TypeDataBase {
     Converter<ResourceType>* resourceProcessor;
-    std::unordered_map<nu::DynamicString, ResourceType> cache;
+    nu::HashMap<nu::DynamicString, ResourceType> cache;
 
     explicit TypeData(Converter<ResourceType>* resourceProcessor)
       : resourceProcessor{resourceProcessor} {}
