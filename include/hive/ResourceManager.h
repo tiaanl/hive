@@ -43,8 +43,8 @@ public:
     // Find the first `ResourceLocator` that will convert the stream into a resource.
     for (auto* resource_locator : m_resourceLocators) {
       if (resource_locator->process(name, &processor)) {
-        auto [it, inserted] = typeData->cache.insert({name, std::move(processor.result)});
-        return &it->second;
+        auto result = typeData->cache.insert(name, std::move(processor.result));
+        return &result.value();
       }
     }
 
