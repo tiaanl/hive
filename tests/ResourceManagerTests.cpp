@@ -2,8 +2,6 @@
 
 #include "hive/Converter.h"
 #include "hive/ResourceManager.h"
-#include "nucleus/Containers/DynamicArray.h"
-#include "nucleus/Streams/ArrayInputStream.h"
 #include "nucleus/Streams/DynamicBufferOutputStream.h"
 #include "nucleus/Streams/MemoryInputStream.h"
 
@@ -19,6 +17,7 @@ public:
   ~DataResourceTypeManager() override = default;
 
   bool load(ResourceManager*, nu::StringView, nu::InputStream* inputStream,
+  bool load(ResourceManager* resourceManager, nu::StringView name, nu::InputStream* inputStream,
             Data* storage) override {
     storage->a = inputStream->readU32();
     storage->b = inputStream->readU32();
@@ -44,39 +43,41 @@ public:
   }
 };
 
-TEST_CASE("basic fetching") {
-  ResourceManager resourceManager;
+TEST_CASE("ResourceManager") {
+  SECTION("basic fetching") {
+    ResourceManager resourceManager;
 
-  MockResourceLocator mockResourceLocator;
-  resourceManager.addResourceLocatorBack(&mockResourceLocator);
+    MockResourceLocator mockResourceLocator;
+    resourceManager.add_resource_locator(&mockResourceLocator);
 
-  DataResourceTypeManager dataResourceTypeManager;
-  resourceManager.registerConverter(&dataResourceTypeManager);
+    DataResourceTypeManager dataResourceTypeManager;
+    resourceManager.register_converter(&dataResourceTypeManager);
 
-  Data* data1 = resourceManager.get<Data>("data1");
-  CHECK(data1->a == 1);
-  CHECK(data1->b == 2);
+    Data* data1 = resourceManager.get<Data>("data1");
+    CHECK(data1->a == 1);
+    CHECK(data1->b == 2);
 
-  Data* data2 = resourceManager.get<Data>("data1");
-  CHECK(data2->a == 1);
-  CHECK(data2->b == 2);
-}
+    Data* data2 = resourceManager.get<Data>("data1");
+    CHECK(data2->a == 1);
+    CHECK(data2->b == 2);
+  }
 
-TEST_CASE("can get resources that was inserted without a locator") {
-  ResourceManager resourceManager;
+  SECTION("can get resources that was inserted without a locator") {
+    ResourceManager resourceManager;
 
-  DataResourceTypeManager dataResourceTypeManager;
-  resourceManager.registerConverter(&dataResourceTypeManager);
+    DataResourceTypeManager dataResourceTypeManager;
+    resourceManager.register_converter(&dataResourceTypeManager);
 
-  auto result = resourceManager.insert<Data>("data1", {1, 2});
-  CHECK(result != nullptr);
-  CHECK(result->a == 1);
-  CHECK(result->b == 2);
+    auto result = resourceManager.insert<Data>("data1", {1, 2});
+    CHECK(result != nullptr);
+    CHECK(result->a == 1);
+    CHECK(result->b == 2);
 
-  auto found = resourceManager.get<Data>("data1");
-  CHECK(found != nullptr);
-  CHECK(found->a == 1);
-  CHECK(found->b == 2);
+    auto found = resourceManager.get<Data>("data1");
+    CHECK(found != nullptr);
+    CHECK(found->a == 1);
+    CHECK(found->b == 2);
+  }
 }
 
 }  // namespace hi

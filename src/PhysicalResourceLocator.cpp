@@ -29,7 +29,7 @@ bool PhysicalFileResourceLocator::process(nu::StringView name, Processor* proces
     return false;
   }
 
-  LOG(Info) << "Loading physical file: " << absolutePath.getPath();
+  // LOG(Info) << "Loading physical file: " << absolutePath.getPath();
 
   nu::FileInputStream fileInputStream{absolutePath};
   if (!fileInputStream.openedOk()) {

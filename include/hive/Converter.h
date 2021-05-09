@@ -24,7 +24,7 @@ public:
                     nu::InputStream* inputStream, ResourceType* storage) = 0;
 
 private:
-  friend class hi::ResourceManager;
+  friend class ResourceManager;
 };
 
 }  // namespace hi

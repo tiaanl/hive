@@ -1,9 +1,8 @@
 #pragma once
 
-#include <map>
-
 #include "hive/Converter.h"
 #include "hive/ResourceLocator.h"
+#include "nucleus/Containers/DynamicArray.h"
 #include "nucleus/Containers/hash_map.h"
 #include "nucleus/Memory/ScopedPtr.h"
 #include "nucleus/Text/DynamicString.h"
@@ -11,13 +10,12 @@
 namespace hi {
 
 class ResourceManager {
-public:
   NU_DELETE_COPY_AND_MOVE(ResourceManager);
 
+public:
   ResourceManager();
 
-  void addResourceLocatorFront(ResourceLocator* resourceLocator);
-  void addResourceLocatorBack(ResourceLocator* resourceLocator);
+  void add_resource_locator(ResourceLocator* resourceLocator);
 
   template <typename ResourceType>
   void registerConverter(Converter<ResourceType>* resourceTypeManager) {
@@ -43,12 +41,10 @@ public:
     InternalResourceProcessor<ResourceType> processor{this, typeData->resourceProcessor};
 
     // Find the first `ResourceLocator` that will convert the stream into a resource.
-    for (auto& i : m_resourceLocators) {
-      ResourceLocator* resourceLocator = i.second;
-
-      if (resourceLocator->process(name, &processor)) {
-        auto result = typeData->cache.insert(name, std::move(processor.result));
-        return &result.value();
+    for (auto* resource_locator : m_resourceLocators) {
+      if (resource_locator->process(name, &processor)) {
+        auto [it, inserted] = typeData->cache.insert({name, std::move(processor.result)});
+        return &it->second;
       }
     }
 
@@ -124,7 +120,7 @@ private:
     return static_cast<TypeData<ResourceType>*>(it->second);
   }
 
-  std::map<I32, ResourceLocator*> m_resourceLocators;
+  std::vector<ResourceLocator*> m_resourceLocators;
   std::unordered_map<MemSize, TypeDataBase*> m_typeData;
 };
 
