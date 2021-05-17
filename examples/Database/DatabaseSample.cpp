@@ -1,7 +1,6 @@
 
-#include "hive/PhysicalResourceLocator.h"
 #include "hive/ResourceManager.h"
-#include "nucleus/Macros.h"
+#include "hive/physical_file_locator.h"
 #include "nucleus/Text/StaticString.h"
 
 struct Employee {
@@ -9,21 +8,24 @@ struct Employee {
   I32 age = 0;
 };
 
-class EmployeeResourceProcessor : public hi::Converter<Employee> {
+class EmployeeImporter : public hi::Importer<Employee> {
 public:
-  bool load(hi::ResourceManager* NU_UNUSED(resourceManager), nu::StringView NU_UNUSED(name),
-            nu::InputStream* inputStream, Employee* storage) override {
+  ~EmployeeImporter() override = default;
+
+  bool import(hi::ResourceManager* resource_manager, nu::StringView name, nu::InputStream* stream,
+              Employee* storage) override {
     {
-      auto bytesRead = inputStream->readUntil(storage->name.data(), storage->name.capacity(), '\n');
-      storage->name = nu::StringView{storage->name.data(), bytesRead - 1};
+      auto bytes_read = stream->readUntil(storage->name.data(), storage->name.capacity(), '\n');
+      storage->name = nu::StringView{storage->name.data(), bytes_read - 1};
     }
 
     {
       nu::StaticString<64> temp;
-      auto bytesRead = inputStream->readUntil(temp.data(), temp.capacity(), '\n');
+      auto bytesRead = stream->readUntil(temp.data(), temp.capacity(), '\n');
       temp = nu::StringView{temp.data(), bytesRead - 1};
       storage->age = static_cast<decltype(storage->age)>(std::strtol(temp.data(), nullptr, 10));
     }
+
     return true;
   }
 };
@@ -39,17 +41,15 @@ void printEmployee(hi::ResourceManager& resourceManager, const nu::StringView& n
 }
 
 int main() {
-  hi::ResourceManager resourceManager;
+  hi::ResourceManager rm;
 
-  auto rootPath = nu::FilePath{__FILE__}.dirName() / "data";
-  hi::PhysicalFileResourceLocator physicalFileResourceLocator{rootPath};
-  resourceManager.addResourceLocatorBack(&physicalFileResourceLocator);
+  auto root_path = nu::getCurrentWorkingDirectory() / "data";
+  rm.add_locator(nu::makeScopedPtr<hi::PhysicalFileLocator>(root_path));
 
-  EmployeeResourceProcessor employeeResourceProcessor;
-  resourceManager.register_converter(&employeeResourceProcessor);
+  rm.register_importer<Employee>("txt", nu::makeScopedPtr<EmployeeImporter>());
 
-  printEmployee(resourceManager, "john.txt");
-  printEmployee(resourceManager, "jane.txt");
+  printEmployee(rm, "john.txt");
+  printEmployee(rm, "jane.txt");
 
   return 0;
 }
