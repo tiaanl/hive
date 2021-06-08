@@ -31,16 +31,14 @@ inline nu::ScopedPtr<nu::InputStream> stream_for_data(I32 a, I32 b) {
   return nu::makeScopedPtr<nu::MemoryInputStream>(&d, sizeof(d));
 }
 
-inline nu::ScopedRefPtr<LocatorSet> locator_set_for_data(nu::StringView name, I32 a, I32 b) {
-  auto locator_set = nu::makeScopedRefPtr<LocatorSet>();
-
+inline nu::ScopedRefPtr<Locator> locator_for_data(nu::StringView name, I32 a, I32 b) {
   Data dummy{a, b};
   nu::DynamicArray<U8> item{(U8*)&dummy, sizeof(dummy)};
 
-  auto* locator = locator_set->register_locator<InMemoryLocator>();
+  auto locator = nu::makeScopedRefPtr<InMemoryLocator>();
   locator->set(name, std::move(item));
 
-  return locator_set;
+  return locator;
 }
 
 }  // namespace hi

@@ -17,7 +17,7 @@ TEST_CASE("TypedResource") {
   }
 
   SECTION("import") {
-    auto locator_set = locator_set_for_data("item.data", 10, 20);
+    auto locator_set = locator_for_data("item.data", 10, 20);
     TypedResource<Data> tr{std::move(locator_set)};
 
     auto stream = stream_for_data(10, 20);

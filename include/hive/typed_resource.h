@@ -31,7 +31,7 @@ public:
     return result.value().get();
   }
 
-  ResourceType* import(nu::StringView name) {
+  nu::ScopedPtr<ResourceType> import(nu::StringView name) {
     auto extension = get_extension_from_name(name);
     if (extension.empty()) {
       LOG(Warning) << "Resource name does not have an extension: " << name;
@@ -58,11 +58,7 @@ public:
       return {};
     }
 
-    return cache_.construct(std::move(*resource.release()));
-  }
-
-  bool remove(ResourceType* resource) {
-    return cache_.remove(resource);
+    return resource;
   }
 
 private:
@@ -77,7 +73,6 @@ private:
 
   nu::ScopedRefPtr<Locator> locator_;
   nu::HashMap<nu::DynamicString, nu::ScopedPtr<Importer<ResourceType>>> importers_;
-  nu::StablePool<ResourceType> cache_;
 };
 
 }  // namespace hi
