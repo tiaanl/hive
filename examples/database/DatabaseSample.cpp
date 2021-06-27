@@ -1,7 +1,7 @@
 
 #include "hive/ResourceManager.h"
 #include "hive/physical_file_locator.h"
-#include "nucleus/Text/StaticString.h"
+#include "nucleus/Text/static_string.h"
 
 struct Employee {
   nu::StaticString<128> name;

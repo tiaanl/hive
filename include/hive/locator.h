@@ -1,11 +1,11 @@
 #pragma once
 
-#include <nucleus/Containers/DynamicArray.h>
-#include <nucleus/Memory/ScopedPtr.h>
-#include <nucleus/RefCounted.h>
-#include <nucleus/Streams/InputStream.h>
-#include <nucleus/Text/StaticString.h>
-#include <nucleus/Text/StringView.h>
+#include <nucleus/Containers/dynamic_array.h>
+#include <nucleus/Memory/scoped_ptr.h>
+#include <nucleus/Streams/input_stream.h>
+#include <nucleus/Text/static_string.h>
+#include <nucleus/Text/string_view.h>
+#include <nucleus/ref_counted.h>
 
 namespace hi {
 

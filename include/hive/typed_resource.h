@@ -2,9 +2,9 @@
 
 #include <nucleus/Containers/hash_map.h>
 #include <nucleus/Containers/stable_pool.h>
-#include <nucleus/Memory/ScopedPtr.h>
-#include <nucleus/Memory/ScopedRefPtr.h>
-#include <nucleus/Text/DynamicString.h>
+#include <nucleus/Memory/scoped_ptr.h>
+#include <nucleus/Memory/scoped_ref_ptr.h>
+#include <nucleus/Text/dynamic_string.h>
 
 #include "hive/importer.h"
 #include "locator.h"

@@ -1,6 +1,6 @@
 #pragma once
 
-#include <nucleus/FilePath.h>
+#include <nucleus/file_path.h>
 
 #include "hive/locator.h"
 

@@ -1,7 +1,7 @@
 #pragma once
 
-#include "nucleus/Streams/InputStream.h"
-#include "nucleus/Text/StringView.h"
+#include "nucleus/Streams/input_stream.h"
+#include "nucleus/Text/string_view.h"
 
 namespace hi {
 

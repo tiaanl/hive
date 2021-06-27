@@ -1,4 +1,4 @@
-#include <nucleus/Types.h>
+#include <nucleus/types.h>
 
 #include <catch2/catch.hpp>
 
