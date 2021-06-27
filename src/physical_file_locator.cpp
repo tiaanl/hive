@@ -30,7 +30,7 @@ nu::ScopedPtr<nu::InputStream> PhysicalFileLocator::locate(nu::StringView name) 
 
   // LOG(Info) << "Loading physical file: " << absolutePath.getPath();
 
-  auto stream = nu::makeScopedPtr<nu::FileInputStream>(absolute_path);
+  auto stream = nu::make_scoped_ptr<nu::FileInputStream>(absolute_path);
   if (!stream->openedOk()) {
     return {};
   }

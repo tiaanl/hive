@@ -9,7 +9,7 @@ namespace hi {
 TEST_CASE("TypedResourceCache") {
   auto locator = locator_for_data("test.data", 10, 20);
   TypedResourceCache<Data> trc{std::move(locator)};
-  trc.register_importer("data", nu::makeScopedPtr<DataImporter>());
+  trc.register_importer("data", nu::make_scoped_ptr<DataImporter>());
 
   SECTION("can get item") {
     auto* data = trc.get("test.data");

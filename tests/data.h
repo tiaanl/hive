@@ -28,14 +28,14 @@ public:
 inline nu::ScopedPtr<nu::InputStream> stream_for_data(I32 a, I32 b) {
   Data d{a, b};
 
-  return nu::makeScopedPtr<nu::MemoryInputStream>(&d, sizeof(d));
+  return nu::make_scoped_ptr<nu::MemoryInputStream>(&d, sizeof(d));
 }
 
 inline nu::ScopedRefPtr<Locator> locator_for_data(nu::StringView name, I32 a, I32 b) {
   Data dummy{a, b};
   nu::DynamicArray<U8> item{(U8*)&dummy, sizeof(dummy)};
 
-  auto locator = nu::makeScopedRefPtr<InMemoryLocator>();
+  auto locator = nu::make_scoped_ref_ptr<InMemoryLocator>();
   locator->set(name, std::move(item));
 
   return locator;

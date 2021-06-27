@@ -11,7 +11,7 @@ TEST_CASE("TypedResource") {
   SECTION("importers") {
     TypedResource<Data> tr{{}};
 
-    tr.register_importer("data", nu::makeScopedPtr<DataImporter>());
+    tr.register_importer("data", nu::make_scoped_ptr<DataImporter>());
     CHECK(tr.importer_for_extension("data"));
     CHECK(!tr.importer_for_extension("test"));
   }
@@ -22,7 +22,7 @@ TEST_CASE("TypedResource") {
 
     auto stream = stream_for_data(10, 20);
 
-    tr.register_importer("data", nu::makeScopedPtr<DataImporter>());
+    tr.register_importer("data", nu::make_scoped_ptr<DataImporter>());
 
     auto resource = tr.import("item.data");
     REQUIRE(!resource.is_null());

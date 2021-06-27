@@ -1,10 +1,10 @@
 #pragma once
 
-#include <nucleus/Containers/hash_map.h>
-#include <nucleus/Containers/stable_pool.h>
-#include <nucleus/Memory/scoped_ptr.h>
-#include <nucleus/Memory/scoped_ref_ptr.h>
-#include <nucleus/Text/dynamic_string.h>
+#include <nucleus/containers/hash_map.h>
+#include <nucleus/containers/stable_pool.h>
+#include <nucleus/memory/scoped_ptr.h>
+#include <nucleus/memory/scoped_ref_ptr.h>
+#include <nucleus/text/dynamic_string.h>
 
 #include "hive/importer.h"
 #include "locator.h"
@@ -32,7 +32,7 @@ public:
       return nullptr;
     }
 
-    return result.value().get();
+    return result.value().template cast<Importer<ResourceType>>();
   }
 
   nu::ScopedPtr<ResourceType> import(nu::StringView name) {
@@ -55,7 +55,7 @@ public:
     }
 
     // TODO: This means resources should be default constructed, which is not so nice.
-    auto resource = nu::makeScopedPtr<ResourceType>();
+    auto resource = nu::make_scoped_ptr<ResourceType>();
 
     if (!importer->import(name, stream.get(), resource.get())) {
       LOG(Warning) << "Importer failed for: " << name;

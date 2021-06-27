@@ -14,7 +14,7 @@ nu::ScopedPtr<nu::InputStream> InMemoryLocator::locate(nu::StringView name) {
     return {};
   }
 
-  return nu::makeScopedPtr<nu::ArrayInputStream>(result.value().view());
+  return nu::make_scoped_ptr<nu::ArrayInputStream>(result.value().view());
 }
 
 }  // namespace hi
