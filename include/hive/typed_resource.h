@@ -16,6 +16,10 @@ class TypedResource {
 public:
   explicit TypedResource(nu::ScopedRefPtr<Locator> locator) : locator_{std::move(locator)} {}
 
+  void set_locator(nu::ScopedRefPtr<Locator> locator) {
+    locator_ = std::move(locator);
+  }
+
   Importer<ResourceType>* register_importer(nu::StringView extension,
                                             nu::ScopedPtr<Importer<ResourceType>> importer) {
     auto result = importers_.insert(extension, std::move(importer));

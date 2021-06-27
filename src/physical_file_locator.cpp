@@ -12,10 +12,10 @@ nu::FilePath build_absolute_path(const nu::FilePath& rootPath, const nu::StringV
 
 }  // namespace
 
-PhysicalFileLocator::PhysicalFileLocator() = default;
+PhysicalFileLocator::PhysicalFileLocator()
+  : PhysicalFileLocator{nu::getCurrentWorkingDirectory()} {}
 
-PhysicalFileLocator::PhysicalFileLocator(nu::FilePath rootPath)
-  : m_rootPath{std::move(rootPath)} {}
+PhysicalFileLocator::PhysicalFileLocator(nu::FilePath rootPath) : m_rootPath{std::move(rootPath)} {}
 
 void PhysicalFileLocator::root_path(const nu::FilePath& root_path) {
   m_rootPath = root_path;
