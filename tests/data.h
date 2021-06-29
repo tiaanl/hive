@@ -2,10 +2,10 @@
 
 #include <hive/in_memory_locator.h>
 #include <hive/locator.h>
-#include <nucleus/Memory/scoped_ptr.h>
-#include <nucleus/Memory/scoped_ref_ptr.h>
-#include <nucleus/Streams/array_input_stream.h>
-#include <nucleus/Streams/memory_input_stream.h>
+#include <nucleus/memory/scoped_ptr.h>
+#include <nucleus/memory/scoped_ref_ptr.h>
+#include <nucleus/streams/array_input_stream.h>
+#include <nucleus/streams/memory_input_stream.h>
 
 #include "hive/importer.h"
 

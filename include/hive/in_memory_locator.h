@@ -1,9 +1,9 @@
 #pragma once
 
-#include <nucleus/Containers/dynamic_array.h>
-#include <nucleus/Containers/hash_map.h>
-#include <nucleus/Memory/scoped_ptr.h>
-#include <nucleus/Text/dynamic_string.h>
+#include <nucleus/containers/dynamic_array.h>
+#include <nucleus/containers/hash_map.h>
+#include <nucleus/memory/scoped_ptr.h>
+#include <nucleus/text/dynamic_string.h>
 
 #include "hive/locator.h"
 

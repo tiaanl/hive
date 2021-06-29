@@ -13,7 +13,7 @@ class EmployeeImporter : public hi::Importer<Employee> {
 public:
   ~EmployeeImporter() override = default;
 
-  bool import(nu::StringView name, nu::InputStream* stream, Employee* storage) override {
+  bool import(nu::StringView NU_UNUSED(name), nu::InputStream* stream, Employee* storage) override {
     {
       auto bytes_read = stream->readUntil(storage->name.data(), storage->name.capacity(), '\n');
       storage->name = nu::StringView{storage->name.data(), bytes_read - 1};

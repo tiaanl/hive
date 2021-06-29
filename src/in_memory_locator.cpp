@@ -1,6 +1,6 @@
 #include "hive/in_memory_locator.h"
 
-#include <nucleus/Streams/array_input_stream.h>
+#include <nucleus/streams/array_input_stream.h>
 
 namespace hi {
 

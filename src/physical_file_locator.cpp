@@ -1,6 +1,6 @@
 #include "hive/physical_file_locator.h"
 
-#include "nucleus/Streams/file_input_stream.h"
+#include "nucleus/streams/file_input_stream.h"
 
 namespace hi {
 
