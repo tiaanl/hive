@@ -18,7 +18,7 @@ struct Data {
 
 class DataImporter : public Importer<Data> {
 public:
-  bool import(nu::StringView name, nu::InputStream* stream, Data* storage) override {
+  bool import(nu::StringView NU_UNUSED(name), nu::InputStream* stream, Data* storage) override {
     storage->a = stream->readI32();
     storage->b = stream->readI32();
     return true;

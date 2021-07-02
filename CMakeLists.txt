@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.14)
+cmake_minimum_required(VERSION 3.19)
 
 if (TARGET hive)
     return()
@@ -13,16 +13,19 @@ set(HEADER_FILES
     include/hive/in_memory_locator.h
     include/hive/locator.h
     include/hive/physical_file_locator.h
+    include/hive/resource_manager.h
     include/hive/typed_resource.h
     include/hive/typed_resource_cache.h
     )
 
 set(SOURCE_FILES
-    src/physical_file_locator.cpp
     src/in_memory_locator.cpp
+    src/physical_file_locator.cpp
+    src/resource_manager.cpp
     )
 
 set(TEST_FILES
+    tests/resource_manager_tests.cpp
     tests/typed_resource_cache_tests.cpp
     tests/typed_resource_tests.cpp
     )
