@@ -1,5 +1,6 @@
 #include <hive/importer.h>
 #include <hive/physical_file_locator.h>
+#include <hive/resource_manager.h>
 #include <hive/typed_resource.h>
 #include <nucleus/file_path.h>
 #include <nucleus/text/static_string.h>
@@ -30,25 +31,24 @@ public:
   }
 };
 
-void print_employee(hi::TypedResource<Employee>& employees, nu::StringView name) {
-  auto employee = employees.import(name);
-  if (!employee) {
-    LOG(Error) << "Employee not found. (" << name << ")";
-    return;
-  }
-
-  LOG(Info) << "Employee: " << employee->name << " (" << employee->age << ")";
+void print_employee(const Employee& employee) {
+  LOG(Info) << "Employee: " << employee.name << " (" << employee.age << ")";
 }
 
 int main() {
   auto root_path = nu::getCurrentWorkingDirectory() / "data";
 
-  hi::TypedResource<Employee> employees{
-      nu::make_scoped_ref_ptr<hi::PhysicalFileLocator>(root_path)};
-  employees.register_importer("txt", nu::make_scoped_ptr<EmployeeImporter>());
+  const nu::ScopedRefPtr<hi::PhysicalFileLocator>& locator =
+      nu::make_scoped_ref_ptr<hi::PhysicalFileLocator>(root_path);
 
-  print_employee(employees, "john.txt");
-  print_employee(employees, "jane.txt");
+  hi::ResourceManager rm{locator};
+  rm.register_importer<Employee>("txt", nu::make_scoped_ptr<EmployeeImporter>());
+
+  auto john = rm.import<Employee>("john.txt");
+  auto jane = rm.import<Employee>("jane.txt");
+
+  print_employee(*john);
+  print_employee(*jane);
 
   return 0;
 }

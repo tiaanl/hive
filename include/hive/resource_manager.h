@@ -27,7 +27,7 @@ public:
 
     DCHECK(typed_resource);
 
-    typed_resource->register_importer(extension, std::move(importer));
+    return typed_resource->register_importer(extension, std::move(importer));
   }
 
   template <typename ResourceType>
