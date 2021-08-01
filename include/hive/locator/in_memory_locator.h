@@ -5,7 +5,7 @@
 #include <nucleus/memory/scoped_ptr.h>
 #include <nucleus/text/dynamic_string.h>
 
-#include "hive/locator.h"
+#include "locator.h"
 
 namespace hi {
 

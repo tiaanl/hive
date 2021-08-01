@@ -9,18 +9,18 @@ project(hive)
 add_subdirectory(../nucleus nucleus)
 
 set(HEADER_FILES
-    include/hive/importer.h
-    include/hive/in_memory_locator.h
-    include/hive/locator.h
-    include/hive/physical_file_locator.h
+    include/hive/importer/importer.h
+    include/hive/locator/in_memory_locator.h
+    include/hive/locator/locator.h
+    include/hive/locator/physical_file_locator.h
     include/hive/resource_manager.h
     include/hive/typed_resource.h
     include/hive/typed_resource_cache.h
     )
 
 set(SOURCE_FILES
-    src/in_memory_locator.cpp
-    src/physical_file_locator.cpp
+    src/locator/in_memory_locator.cpp
+    src/locator/physical_file_locator.cpp
     src/resource_manager.cpp
     )
 

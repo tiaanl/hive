@@ -1,18 +1,27 @@
 #pragma once
 
-#include "hive/locator.h"
+#include "hive/locator/locator.h"
 #include "hive/typed_resource.h"
 
 namespace hi {
 
 template <typename ResourceType>
-class TypedResourceCache : public TypedResource<ResourceType> {
+class TypedResourceCache {
 public:
   explicit TypedResourceCache(nu::ScopedRefPtr<Locator> locator)
-    : TypedResource<ResourceType>{std::move(locator)} {}
+    : typed_resource_{std::move(locator)} {}
+
+  TypedResource<ResourceType>& typed_resource() {
+    return typed_resource_;
+  }
+
+  Importer<ResourceType>* register_importer(nu::StringView extension,
+                                            nu::ScopedPtr<Importer<ResourceType>> importer) {
+    return typed_resource_.register_importer(extension, std::move(importer));
+  }
 
   ResourceType* get(nu::StringView name) {
-    auto resource = TypedResource<ResourceType>::import(name);
+    auto resource = typed_resource_.import(name);
     if (!resource) {
       return nullptr;
     }
@@ -22,6 +31,7 @@ public:
   }
 
 private:
+  TypedResource<ResourceType> typed_resource_;
   nu::HashMap<nu::DynamicString, nu::ScopedPtr<ResourceType>> cache_;
 };
 

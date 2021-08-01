@@ -1,4 +1,4 @@
-#include <hive/in_memory_locator.h>
+#include <hive/locator/in_memory_locator.h>
 
 #include <catch2/catch.hpp>
 

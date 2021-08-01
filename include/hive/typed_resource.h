@@ -6,8 +6,8 @@
 #include <nucleus/memory/scoped_ref_ptr.h>
 #include <nucleus/text/dynamic_string.h>
 
-#include "hive/importer.h"
-#include "locator.h"
+#include "hive/importer/importer.h"
+#include "hive/locator/locator.h"
 
 namespace hi {
 

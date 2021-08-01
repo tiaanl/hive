@@ -1,9 +1,6 @@
-#include <hive/importer.h>
-#include <hive/physical_file_locator.h>
+#include <hive/importer/importer.h>
+#include <hive/locator/physical_file_locator.h>
 #include <hive/resource_manager.h>
-#include <hive/typed_resource.h>
-#include <nucleus/file_path.h>
-#include <nucleus/text/static_string.h>
 
 struct Employee {
   nu::StaticString<128> name;

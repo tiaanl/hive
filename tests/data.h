@@ -1,13 +1,13 @@
 #pragma once
 
-#include <hive/in_memory_locator.h>
-#include <hive/locator.h>
+#include <hive/locator/in_memory_locator.h>
+#include <hive/locator/locator.h>
 #include <nucleus/memory/scoped_ptr.h>
 #include <nucleus/memory/scoped_ref_ptr.h>
 #include <nucleus/streams/array_input_stream.h>
 #include <nucleus/streams/memory_input_stream.h>
 
-#include "hive/importer.h"
+#include "hive/importer/importer.h"
 
 namespace hi {
 

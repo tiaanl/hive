@@ -2,7 +2,7 @@
 
 #include <nucleus/file_path.h>
 
-#include "hive/locator.h"
+#include "locator.h"
 
 namespace hi {
 

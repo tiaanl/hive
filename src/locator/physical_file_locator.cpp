@@ -1,4 +1,4 @@
-#include "hive/physical_file_locator.h"
+#include "hive/locator/physical_file_locator.h"
 
 #include "nucleus/streams/file_input_stream.h"
 
