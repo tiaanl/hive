@@ -15,16 +15,17 @@ nu::FilePath build_absolute_path(const nu::FilePath& rootPath, const nu::StringV
 PhysicalFileLocator::PhysicalFileLocator()
   : PhysicalFileLocator{nu::getCurrentWorkingDirectory()} {}
 
-PhysicalFileLocator::PhysicalFileLocator(nu::FilePath rootPath) : m_rootPath{std::move(rootPath)} {}
+PhysicalFileLocator::PhysicalFileLocator(nu::FilePath root_path)
+  : root_path_{std::move(root_path)} {}
 
 void PhysicalFileLocator::root_path(const nu::FilePath& root_path) {
-  m_rootPath = root_path;
+  root_path_ = root_path;
 }
 nu::ScopedPtr<nu::InputStream> PhysicalFileLocator::locate(nu::StringView name) {
-  auto absolute_path = build_absolute_path(m_rootPath, name);
+  auto absolute_path = build_absolute_path(root_path_, name);
 
   if (!nu::exists(absolute_path)) {
-    LOG(Warning) << "Physical file not found: " << absolute_path.getPath();
+    // LOG(Warning) << "Physical file not found: " << absolute_path.getPath();
     return {};
   }
 

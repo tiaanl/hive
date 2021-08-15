@@ -11,10 +11,10 @@ class PhysicalFileLocator : public Locator {
 
 public:
   PhysicalFileLocator();
-  explicit PhysicalFileLocator(nu::FilePath rootPath);
+  explicit PhysicalFileLocator(nu::FilePath root_path);
 
   const nu::FilePath& root_path() const {
-    return m_rootPath;
+    return root_path_;
   }
 
   void root_path(const nu::FilePath&);
@@ -23,7 +23,7 @@ public:
   nu::ScopedPtr<nu::InputStream> locate(nu::StringView name) override;
 
 private:
-  nu::FilePath m_rootPath;
+  nu::FilePath root_path_;
 };
 
 }  // namespace hi

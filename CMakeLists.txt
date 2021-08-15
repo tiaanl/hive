@@ -10,6 +10,7 @@ add_subdirectory(../nucleus nucleus)
 
 set(HEADER_FILES
     include/hive/importer/importer.h
+    include/hive/locator/composite_locator.hpp
     include/hive/locator/in_memory_locator.h
     include/hive/locator/locator.h
     include/hive/locator/physical_file_locator.h
@@ -19,6 +20,7 @@ set(HEADER_FILES
     )
 
 set(SOURCE_FILES
+    src/locator/composite_locator.cpp
     src/locator/in_memory_locator.cpp
     src/locator/physical_file_locator.cpp
     src/resource_manager.cpp
