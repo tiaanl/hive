@@ -12,7 +12,7 @@ class Importer {
 public:
   virtual ~Importer() = default;
 
-  virtual bool import(nu::StringView name, nu::InputStream* stream, T* storage) = 0;
+  virtual bool import(nu::InputStream* stream, T* storage) = 0;
 };
 
 }  // namespace hi

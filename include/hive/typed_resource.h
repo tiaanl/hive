@@ -57,7 +57,7 @@ public:
     // TODO: This means resources should be default constructed, which is not so nice.
     auto resource = nu::make_scoped_ptr<ResourceType>();
 
-    if (!importer->import(name, stream.get(), resource.get())) {
+    if (!importer->import(stream.get(), resource.get())) {
       LOG(Warning) << "Importer failed for: " << name;
       return {};
     }
